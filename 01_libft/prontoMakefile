@@ -27,16 +27,24 @@ all: $(NAME)
 $(NAME): $(OBJS)
 	ar rcs $@ $^
 
-bonus: $(OBJS) $(BONUS_OBJS)
-	ar rcs $(NAME) $(OBJS) $(BONUS_OBJS)
+# Adiciona os objetos do bônus à biblioteca existente
+bonus: $(NAME) $(BONUS_OBJS)
+	@touch .bonus_done
+	@ar rcs $(NAME) $(BONUS_OBJS)
 
-# Compila arquivos .c em .o
+.bonus_done: $(BONUS_OBJS)
+	@ar rcs $(NAME) $(BONUS_OBJS)
+	@touch $@
+
+bonus: .bonus_done
+
+# Regra para compilar .c para .o
 %.o: %.c libft.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Limpeza dos objetos
 clean:
-	rm -f $(OBJS) $(BONUS_OBJS)
+	rm -f $(OBJS) $(BONUS_OBJS) .bonus_done
 
 # Limpeza completa
 fclean: clean
@@ -46,4 +54,3 @@ fclean: clean
 re: fclean all
 
 .PHONY: all bonus clean fclean re
-
