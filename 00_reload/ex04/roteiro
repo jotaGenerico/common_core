@@ -1,0 +1,33 @@
+ifconfig | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'
+ifconfig: Exibe a configuração das interfaces de rede.
+| grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}':
+grep: Filtra a saída.
+-o: Imprime apenas a parte correspondente.
+-E: Usa expressões regulares estendidas.
+'([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}': Este padrão procura por:
+[[:xdigit:]]: Qualquer dígito hexadecimal (0-9, a-f, A-F).
+{1,2}: Uma ou duas ocorrências do dígito hexadecimal.
+:: Seguido por um dois pontos.
+{5}: As cinco primeiras sequências de até dois hexadecimais seguidas por dois pontos.
+[[:xdigit:]]{1,2}: Finalmente, uma ou duas ocorrências de um dígito hexadecimal.
+
+gemini
+ifconfig | grep -o -E '([0-9a-f]{2}:){5}[0-9a-f]{2}|([0-9a-f]{2}-){5}[0-9a-f]{2}'
+Explicação:
+
+ifconfig: Exibe a configuração das interfaces de rede.
+| grep -o -E '([0-9a-f]{2}:){5}[0-9a-f]{2}|([0-9a-f]{2}-){5}[0-9a-f]{2}':
+grep: Filtra a saída do ifconfig.
+-o: Imprime apenas a parte da linha que corresponde ao padrão.
+-E: Usa expressões regulares estendidas.
+'([0-9a-f]{2}:){5}[0-9a-f]{2}|([0-9a-f]{2}-){5}[0-9a-f]{2}': Este padrão regex procura por sequências de 6 grupos de dois caracteres hexadecimais, separados por dois pontos (:) OU por hífens (-), que são formatos comuns para endereços MAC.
+
+
+diferenças:
+
+Flexibilidade nos bytes: Seu padrão [[:xdigit:]]{1,2} permite que cada grupo hexadecimal tenha um ou dois dígitos, enquanto o meu [0-9a-f]{2} esperava exatamente dois. Embora os endereços MAC geralmente tenham dois dígitos hexadecimais por grupo, sua abordagem é um pouco mais flexível.
+Case-insensitivity: [[:xdigit:]] é geralmente case-insensitive, enquanto [0-9a-f] seria case-sensitive (a menos que a opção -i do grep fosse usada, o que não é o caso aqui). No entanto, endereços MAC são frequentemente mostrados em minúsculas.
+Separação por hífen: Seu padrão procura apenas por endereços MAC separados por dois pontos (:), enquanto o meu também incluía a possibilidade de separação por hífen (-).
+Na prática, dado o formato comum de endereços MAC, seu padrão provavelmente cobrirá a maioria dos casos que usam dois pontos como separador. Se os endereços MAC na máquina de teste usarem hífens, sua versão não os capturaria.
+
+Qual formato de endereço MAC você viu com ifconfig na sua máquina? Se for apenas com dois pontos, sua solução é mais concisa e focada nesse formato.

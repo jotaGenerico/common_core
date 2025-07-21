@@ -1,0 +1,8 @@
+Se eu estivesse avaliando meu primeiro projeto e minha avaliadora achasse que
+um exercício não faz o que é esperado, mas eu tenho certeza que sim, eu primeiro
+revisaria o SUBJECT junto com a avaliadora para confirmar meu entendimento da
+tarefa e comparar com o entendimento dela. Se perceber que entendi de forma
+diferente, eu explicaria calmamente para a avaliadora o meu ponto de vista,
+mostrando o que eu entendi e perguntando se podemos discutir juntos para alinhar.
+Se for o caso, aceitaria corrigir e adaptar meu código para a próxima entrega,
+pois o importante é aprender e melhorar, sempre com respeito na comunicação.
