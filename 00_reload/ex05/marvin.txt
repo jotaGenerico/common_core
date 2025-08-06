@@ -1,7 +1,0 @@
-echo -n "42" > \"\\\?\$\*\'MaRViN\'\*\$\?\\\"
-
-o parametro -n mata a nova linha e mantem o tamanho do arkivo correto, nao esquecer das contra barras como escape para os caracteres especiais
-
-chmod 614 "\?$*'MaRViN'*$?\"
-
-setar as permiçoes do arkivo conforme a saida do pdf
