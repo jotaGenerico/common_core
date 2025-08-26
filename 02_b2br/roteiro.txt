@@ -1,0 +1,546 @@
+2. Visão Geral do Projeto
+Como uma máquina virtual funciona?
+Uma VM funciona como um computador dentro de outro. Ela usa um software chamado hypervisor (como o VirtualBox) para virtualizar o hardware, criando um ambiente isolado com sua própria CPU, memória e disco virtual. O sistema operacional da VM ("guest") roda em cima do seu sistema operacional principal ("host") sem interferir nele.
+
+Sua escolha de SO (Debian) e propósito das VMs?
+A escolha por Debian é excelente, pois é conhecido por sua estabilidade, segurança e por ser a base de muitos outros sistemas operacionais. As máquinas virtuais são usadas para:
+
+Isolamento: Separar projetos e evitar que um erro afete o sistema principal.
+
+Segurança: Testar softwares potencialmente perigosos em um ambiente seguro.
+
+Portabilidade: Você pode mover a VM inteira para outra máquina e continuar trabalhando.
+
+Diferença entre Debian e CentOS?
+As principais diferenças estão nos gerenciadores de pacotes e nos sistemas de segurança:
+
+Debian: Usa apt e aptitude. É conhecido por ser estável e ter pacotes mais antigos, mas bem testados. Usa o sistema de segurança AppArmor.
+
+CentOS: Usava yum e agora usa dnf. É popular em ambientes de servidor e focado em segurança de nível empresarial. Usa o sistema de segurança SELinux.
+
+Diferença entre apt e aptitude?
+Ambos são gerenciadores de pacotes. apt é o comando mais moderno e simplificado para uso diário. aptitude é mais antigo, mas é mais poderoso para gerenciar dependências e resolver conflitos de pacotes.
+
+O que é AppArmor?
+AppArmor é um módulo de segurança do kernel do Linux que protege o sistema. Ele define perfis de segurança para programas específicos, limitando o que eles podem fazer (como ler arquivos ou usar redes), o que ajuda a prevenir ataques mesmo que um programa seja comprometido.
+
+Script de monitoramento:
+Para verificar se o script de monitoramento está rodando a cada 10 minutos, você pode usar o comando crontab -l, que lista as tarefas agendadas.
+
+
+
+3: Configuração Simples.
+
+Essa parte envolve tanto verificações visuais quanto comandos para confirmar as configurações.
+
+Verificações Visuais
+Ambiente Gráfico:
+Você consegue confirmar que a máquina virtual inicializa sem uma interface gráfica, indo direto para o terminal?
+
+Login e Senha:
+Você está logado com seu usuário (jose-cad), que não é o root? A senha que você usa para fazer login segue as regras de política de senha que o projeto exige?
+
+Testes de Comando
+Execute os seguintes comandos na sua VM para verificar os serviços e o sistema operacional.
+
+Bash
+
+# Verifica se o UFW está ativo e as regras
+sudo ufw status
+
+# Verifica se o serviço SSH está rodando
+sudo systemctl status ssh
+
+# Confirma o sistema operacional
+cat /etc/os-release
+
+
+
+Aqui, você precisa verificar as configurações do seu usuário atual (jose-cad) e criar um novo usuário e um novo grupo para o avaliador.
+
+Verificando os Grupos do seu Usuário
+Primeiro, vamos confirmar que o seu usuário pertence aos grupos corretos, como o sudo.
+
+Bash
+
+groups jose-cad
+A saída deve listar os grupos aos quais você pertence, incluindo sudo e user42 (se este for um requisito).
+
+Criando um Novo Usuário e Grupo
+Agora, siga estes passos para criar o usuário e o grupo do avaliador.
+
+Crie um novo usuário para o avaliador.
+
+Bash
+
+sudo adduser avaliador
+Siga as instruções na tela para definir a senha e as informações. A senha deve seguir as regras do seu projeto.
+
+Crie o grupo "evaluating".
+
+Bash
+
+sudo groupadd evaluating
+Adicione o novo usuário ao grupo "evaluating".
+
+Bash
+
+sudo usermod -aG evaluating avaliador
+Verificando os Novos Grupos
+Por fim, vamos verificar se o usuário avaliador foi adicionado corretamente ao grupo evaluating.
+
+Bash
+
+groups avaliador
+A saída deve mostrar o novo usuário nos grupos avaliador e evaluating.
+
+Criando um Novo Usuário e Grupo
+Crie um novo usuário para o avaliador:
+
+Bash
+
+sudo adduser avaliador
+Siga as instruções para definir a senha e as informações. A senha deve seguir as regras de política de senha do projeto.
+
+Crie o grupo "evaluating":
+
+Bash
+
+sudo groupadd evaluating
+Adicione o novo usuário ao grupo "evaluating":
+
+Bash
+
+sudo usermod -aG evaluating avaliador
+Verifique se o usuário foi adicionado corretamente:
+
+Bash
+
+groups avaliador
+
+
+Certo. Vamos seguir em frente e focar nas explicações que você precisará dar na avaliação.
+
+Explicações sobre a Política de Senha
+1. Como as regras foram implementadas?
+As regras de política de senha são implementadas editando o arquivo /etc/pam.d/common-password. Nele, você usa o módulo pam_cracklib ou pam_pwquality. Para o projeto, este módulo é configurado com opções como minlen=10 (mínimo de 10 caracteres), dcredit=-1 (mínimo de 1 dígito), ucredit=-1 (mínimo de 1 letra maiúscula), e ocredit=-1 (mínimo de 1 caractere especial), por exemplo.
+
+2. Vantagens da política de senha?
+A principal vantagem é a segurança. Uma política de senha forte evita que usuários criem senhas fáceis de adivinhar. Isso protege contra ataques de força bruta, onde um invasor tenta milhares de senhas por segundo, e contra ataques de dicionário, que usam listas de palavras comuns. Em resumo, senhas complexas dificultam o acesso não autorizado à sua máquina.
+
+3. Vantagens e desvantagens da implementação?
+
+Vantagens: Aumenta drasticamente a segurança do sistema. Obriga os usuários a criarem senhas mais robustas, o que reduz o risco de um ataque ser bem-sucedido.
+
+Desvantagens: Pode ser inconveniente para os usuários, que podem ter dificuldade em lembrar senhas complexas. Isso pode levar a um aumento no número de senhas anotadas em papéis, o que compromete a segurança. Além disso, pode aumentar o trabalho do suporte técnico, que tem que lidar com mais solicitações de redefinição de senha.
+
+
+
+5. Hostname e Partições.
+
+Nesta parte, você precisa verificar e alterar o nome da máquina (hostname) e depois analisar como o disco está particionado.
+
+Verificando o Hostname
+Verifique o hostname atual:
+Execute este comando para ver o nome da sua máquina. O requisito do projeto é que seja login42.
+
+Bash
+
+hostname
+Mude o hostname:
+Altere o hostname para o seu login, como você fez para a sua VM.
+
+Bash
+
+sudo hostnamectl set-hostname jose-cad42
+Após a alteração, reinicie a máquina virtual para que a mudança seja aplicada completamente.
+
+Restaure o hostname original:
+Depois de verificar que o nome foi alterado com sucesso, volte-o para o nome original (login42).
+
+Bash
+
+sudo hostnamectl set-hostname login42
+Visualizando as Partições
+Agora, vamos ver como seu disco está particionado. Se você implementou o LVM, o resultado será diferente.
+
+Bash
+
+lsblk
+Este comando exibirá uma visão geral de todos os seus discos e partições. A saída deve ser clara e mostrar as partições LVM se você as criou.
+
+Como o LVM Funciona e Para que Serve
+O LVM (Logical Volume Management) é uma camada de abstração que te permite gerenciar o espaço de armazenamento de forma mais flexível do que as partições tradicionais.
+
+Como funciona?
+
+O LVM organiza seu disco em três partes principais:
+
+Physical Volumes (PVs): São os discos ou partições físicas (como o sda5 no seu caso). É a sua matéria-prima.
+
+Volume Groups (VGs): É um "pool" de armazenamento, criado a partir de um ou mais PVs. Pense nisso como um grande armário de armazenamento que combina o espaço de todos os seus discos.
+
+Logical Volumes (LVs): São as partições que você cria a partir do espaço do Volume Group (como o jose--cad-lv_root ou o jose--cad-lv_var na sua máquina). Você as usa como se fossem partições normais (/, /var, etc.), mas elas têm a flexibilidade do LVM.
+
+Para que serve (as vantagens):
+
+Flexibilidade: A maior vantagem. Você pode redimensionar (aumentar ou diminuir) seus Logical Volumes (/var, /home) facilmente, mesmo com o sistema em execução, sem precisar reparticionar o disco.
+
+Gerenciamento Simplificado: Se você precisar adicionar um novo disco ao sistema, basta adicioná-lo ao Volume Group e o espaço extra fica disponível para todos os seus Logical Volumes.
+
+Snapshots: O LVM permite criar "instantâneos" do seu sistema de arquivos em um ponto específico no tempo. Isso é excelente para fazer backups ou testar alterações sem risco.
+
+Com o LVM, o seu gerenciamento de disco se torna muito mais dinâmico e seguro.
+
+
+
+ 6. SUDO.
+
+Nesta etapa, vamos verificar a configuração do sudo, que é um ponto crucial de segurança no projeto born2beroot.
+
+Testes a Realizar
+Verificar se o sudo está instalado:
+Execute o seguinte comando para confirmar que o sudo está no sistema.
+
+Bash
+
+which sudo
+A saída deve ser o caminho do executável: /usr/bin/sudo.
+
+Verificar se o log do sudo está funcionando:
+O projeto exige que os comandos executados com sudo sejam logados em /var/log/sudo/sudo.log. Para confirmar isso, vamos ver se a pasta existe e se há conteúdo nela.
+
+Bash
+
+ls -la /var/log/sudo/
+A saída deve mostrar o arquivo de log.
+
+Executar um comando com sudo e verificar os logs:
+Execute um comando simples com sudo e, em seguida, verifique o conteúdo do log para garantir que a sua ação foi registrada.
+
+Bash
+
+sudo ls -la /root
+sudo cat /var/log/sudo/sudo.log
+
+Valor e Funcionamento do Sudo
+O sudo (abreviação de "superuser do") permite que um usuário comum execute comandos com os privilégios de outro usuário, geralmente o root.
+
+Valor e Segurança:
+O principal valor do sudo é a segurança. Ele permite que um administrador conceda permissões elevadas de forma granular, sem ter que dar a senha do root para os usuários. Isso evita que um usuário execute comandos perigosos por engano ou por má-fé, já que cada comando com sudo precisa de autenticação e é registrado.
+
+Exemplo:
+Se um usuário comum tentar instalar um pacote sem sudo, o comando vai falhar:
+apt install htop -> Permission denied
+
+Com o sudo, o comando é executado com sucesso:
+sudo apt install htop -> Senha do usuário é solicitada, e a instalação prossegue.
+
+Implementação das Regras do Projeto
+As regras de segurança do sudo são implementadas no arquivo /etc/sudoers ou em arquivos no diretório /etc/sudoers.d/.
+
+Para o projeto, as principais regras que você implementou são:
+
+Logs Detalhados: As opções logfile, log_input, e log_output foram ativadas. Isso garante que cada comando executado, a entrada e a saída do terminal, sejam registrados no arquivo /var/log/sudo/sudo.log. Isso é crucial para auditoria e segurança.
+
+Limitação de Tentativas de Senha: A opção passwd_tries=3 foi configurada para limitar o número de tentativas de senha a três, e badpass_message foi usado para exibir uma mensagem personalizada. Isso ajuda a prevenir ataques de força bruta contra a senha do sudo.
+
+Secure Path: A variável secure_path foi definida para incluir somente os diretórios padrão do sistema (/bin, /sbin, /usr/bin, etc.). Isso impede que o sudo execute scripts de diretórios não confiáveis com privilégios de root.
+
+
+
+7. UFW (Firewall).
+
+Nesta etapa, você precisa verificar se o firewall está funcionando corretamente, confirmar as regras ativas, e praticar como adicionar e remover uma nova regra.
+
+Testes a Realizar
+Verifique a instalação e o status do UFW:
+Use estes dois comandos para confirmar se o programa está instalado e se o serviço está ativo.
+
+Bash
+
+which ufw
+sudo ufw status
+O segundo comando deve mostrar Status: active e listar as regras que você configurou para as portas 4242, 80 e 443.
+
+Adicione e verifique uma nova regra:
+Adicione uma regra para abrir a porta 8080, que será usada apenas para teste. Depois, verifique o status novamente.
+
+Bash
+
+sudo ufw allow 8080
+sudo ufw status
+A nova regra para a porta 8080 deve aparecer na lista.
+
+Delete a nova regra:
+Agora, remova a regra que acabou de criar, já que ela não é necessária para o projeto final.
+
+Bash
+
+sudo ufw delete allow 8080
+
+O acrônimo UFW significa "Uncomplicated Firewall", ou seja, "Firewall Descomplicado". O nome já diz tudo.
+
+O UFW é uma interface fácil de usar para gerenciar as regras de firewall do seu sistema. Ele simplifica o processo de configurar o iptables, que é a ferramenta padrão de firewall do Linux, mas é bem mais complexa.
+
+Valor e Segurança:
+
+O principal valor de usar um firewall como o UFW é a segurança da rede.
+
+Proteção contra ataques: O firewall atua como uma barreira entre a sua máquina e a internet. Ele bloqueia o tráfego de rede não autorizado, protegendo seu sistema de invasores e de ataques de rede.
+
+Controle de serviços: Ele permite que você controle exatamente quais portas e serviços ficam acessíveis na rede. No seu projeto, por exemplo, você configurou o UFW para bloquear todo o tráfego de entrada por padrão e apenas permitir as portas 4242 (SSH), 80 (HTTP) e 443 (HTTPS). Isso garante que sua máquina só aceite conexões nos serviços que são estritamente necessários, o que é uma prática de segurança fundamental.
+
+
+
+8. SSH.
+
+Nesta etapa, você vai testar se a configuração do serviço SSH está correta, incluindo a porta e as permissões de login.
+
+Testes a Realizar
+Verifique a instalação e o status do SSH:
+Use estes comandos para confirmar que o serviço está instalado e ativo.
+
+Bash
+
+which sshd
+sudo systemctl status ssh
+O segundo comando deve mostrar Active: active (running).
+
+Confirme a porta de SSH no arquivo de configuração:
+O projeto exige que apenas a porta 4242 seja usada para SSH. Verifique se isso está configurado no arquivo sshd_config.
+
+Bash
+
+sudo grep Port /etc/ssh/sshd_config
+A saída deve mostrar apenas Port 4242 e a linha PermitRootLogin no.
+
+Teste o login com o usuário recém-criado (avaliador):
+Com o novo usuário criado e a senha definida, tente fazer login na sua VM a partir da sua máquina principal.
+
+Bash
+
+ssh avaliador@<endereço_ip_da_vm> -p 4242
+Este login deve ser bem-sucedido.
+
+Verifique que o login como root não é permitido:
+Agora, tente fazer login diretamente como root. Isso deve ser negado.
+
+Bash
+
+ssh root@<endereço_ip_da_vm> -p 4242
+A saída esperada é uma mensagem de Permission denied.
+
+O que é SSH e Qual o Valor de Usá-lo
+SSH significa "Secure Shell" (Shell Seguro). É um protocolo de rede que permite que você se conecte e controle um computador remotamente de forma segura. Ele oferece uma forma de comunicação criptografada entre dois computadores através de uma rede não segura, como a internet.
+
+Valor e Segurança:
+
+O principal valor de usar o SSH é a segurança. Antes do SSH, o protocolo mais comum para acesso remoto era o Telnet, que enviava dados (incluindo senhas) em texto simples, tornando-o vulnerável a interceptações.
+
+Com o SSH:
+
+Comunicação Criptografada: Todos os dados trocados entre você e o servidor são criptografados. Isso impede que terceiros maliciosos "escutem" suas informações, como senhas e comandos.
+
+Gerenciamento Remoto Seguro: Ele permite que administradores gerenciem servidores de qualquer lugar do mundo, sabendo que a conexão é segura.
+
+Aumento da segurança do serviço: Uma prática comum, como a que você implementou, é mudar a porta padrão do SSH (22) para uma porta não padrão (como a 4242). Isso dificulta que hackers e bots automatizados encontrem seu serviço de SSH para tentar ataques.
+
+
+
+9. Script de Monitoramento
+1. Verificar se o script roda a cada 10 minutos
+Você já concluiu este passo. O teste Crontab agora mostra [OK], o que confirma que sua tarefa agendada a cada 10 minutos foi configurada corretamente.
+
+2. Modificar para rodar a cada 30 segundos
+O cron não tem uma opção nativa para rodar a cada 30 segundos. Para conseguir isso, você deve usar duas entradas no crontab.
+
+Abra o crontab do root.
+
+Bash
+
+sudo crontab -e
+Substitua sua linha atual por estas duas linhas:
+
+* * * * * /usr/local/bin/monitoring.sh
+* * * * * sleep 30 && /usr/local/bin/monitoring.sh
+Salve o arquivo e feche o editor.
+
+A primeira linha executa o script no início de cada minuto, e a segunda linha espera 30 segundos antes de executá-lo novamente, garantindo que ele rode a cada 30 segundos.
+
+3. Verificar se o script funciona com valores dinâmicos
+O script que você me enviou já foi projetado para capturar valores dinâmicos. Você pode testar isso executando-o manualmente a qualquer momento.
+
+Basta rodar o script no terminal e verificar se a mensagem exibe os valores corretos.
+
+Bash
+
+sudo /usr/local/bin/monitoring.sh
+4. Parar o script sem modificá-lo
+Para parar a execução do script, você deve remover a tarefa agendada do crontab. O script em si pode permanecer no sistema, mas não será mais executado.
+
+Abra o crontab do root.
+
+Bash
+
+sudo crontab -e
+Delete as linhas do seu script de monitoramento.
+
+Salve e feche o arquivo.
+
+5. Reiniciar o servidor e verificar se o script ainda existe no mesmo local
+Para reiniciar a VM e verificar se o script ainda está no lugar, use estes comandos:
+
+Reinicie a VM:
+
+Bash
+
+sudo reboot
+Após a VM reiniciar e você fazer login, verifique se o arquivo ainda existe:
+
+Bash
+
+ls /usr/local/bin/monitoring.sh
+A menos que você o tenha deletado, ele deve aparecer.
+
+6. Verificar se as permissões permaneceram inalteradas
+Para verificar se as permissões do script não foram alteradas após o reinício, use o comando ls -l. A saída mostrará as permissões, o dono e o grupo do arquivo.
+
+Bash
+
+ls -l /usr/local/bin/monitoring.sh
+7. Verificar se o script não foi modificado
+Para verificar se o script não foi modificado, você pode usar o timestamp (data e hora de modificação) do arquivo. A saída do ls -l mostrará quando o arquivo foi editado pela última vez. Se você não o editou, o timestamp deve ser o mesmo de quando você o salvou.
+
+Bash
+
+ls -l /usr/local/bin/monitoring.sh
+
+Como o script de monitoramento funciona
+Seu script, o monitoring.sh, é um programa de linha de comando que coleta informações do sistema e as exibe em todos os terminais de usuários logados. Ele funciona em 3 etapas principais:
+
+Coleta de dados: Ele usa vários comandos do Linux (uname, grep, free, df, etc.) para pegar dados como uso de CPU, memória, disco, e informações de rede. O resultado de cada comando é armazenado em uma variável.
+
+Formatação da mensagem: O script organiza todas as informações coletadas em um bloco de texto formatado, usando a sintaxe cat <<EOF. Isso cria uma mensagem clara e organizada.
+
+Exibição: Por fim, a mensagem é enviada para todos os terminais ativos de usuários logados usando o comando wall ou um loop com o comando write, dependendo da sua última versão do script. Isso garante que a mensagem de monitoramento seja visível para todos.
+
+O que é "cron"
+Cron é um serviço de agendamento de tarefas do Linux. Ele é como um "relógio despertador" para o sistema operacional, permitindo que você programe comandos ou scripts para rodarem automaticamente em horários específicos.
+
+Ele é extremamente útil para tarefas de manutenção, como backups, atualizações, ou, no seu caso, para rodar o script de monitoramento a cada 10 minutos, sem que você precise executá-lo manualmente.
+
+Como foi configurado para rodar a cada 10 minutos desde o início do servidor
+Para fazer o seu script de monitoramento rodar a cada 10 minutos, você o agendou no crontab do usuário root. A configuração foi feita da seguinte forma:
+
+O arquivo do crontab do root foi editado com o comando sudo crontab -e.
+
+A linha */10 * * * * /usr/local/bin/monitoring.sh foi adicionada a esse arquivo.
+
+Essa sintaxe tem um significado específico para o cron:
+
+*/10: Significa "a cada 10 minutos".
+
+*: Significa "a cada hora".
+
+*: Significa "a cada dia do mês".
+
+*: Significa "a cada mês".
+
+*: Significa "a cada dia da semana".
+
+Essa configuração garante que o cron execute o script monitoring.sh a cada 10 minutos, independentemente do dia, mês ou ano, e o faz rodar automaticamente sempre que o servidor for ligado, pois o serviço cron é iniciado com o sistema.
+
+Novo crontab (30 segundos):
+bash* * * * * /caminho/para/monitoring.sh
+* * * * * sleep 30; /caminho/para/monitoring.sh
+Ou melhor ainda:
+bash* * * * * for i in 0 30; do (sleep $i; /caminho/para/monitoring.sh) & done
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Parte Bônus (apenas se a parte obrigatória estiver 100% correta)
+
+1. Configuração de Partições (2 Pontos)
+Para obter os pontos de particionamento, você implementou corretamente uma partição extra na sua VM. Isso demonstra a capacidade de gerenciar o espaço em disco do sistema de forma eficiente. A partição foi configurada e montada, garantindo a separação e organização dos dados, o que melhora a segurança e a estabilidade do sistema.
+
+2. Implementação de WordPress (2 Pontos)
+Para o bônus do WordPress, você instalou e configurou um servidor web completo sem usar o Apache ou o NGINX, conforme as regras do projeto. Sua implementação consiste em um conjunto de serviços integrados:
+
+Servidor Web: Você utilizou o Lighttpd, um servidor leve e rápido que é uma excelente alternativa ao Apache e NGINX.
+
+Processamento PHP: O Lighttpd foi configurado para se comunicar com o PHP-FPM (FastCGI Process Manager). Este serviço é responsável por processar os arquivos .php do WordPress e gerar as páginas web.
+
+Banco de Dados: A instalação do WordPress usa o MariaDB para armazenar todas as informações do site, como postagens, usuários e configurações.
+
+Essa configuração prova a sua habilidade em montar um ambiente de servidor completo a partir do zero, usando serviços específicos e não as soluções mais comuns.
+
+3. Serviço de Livre Escolha: Servidor FTP (1 Ponto)
+Como seu serviço de livre escolha, você implementou um servidor FTP (File Transfer Protocol).
+
+Como Funciona: O FTP permite a transferência de arquivos entre um cliente e o seu servidor. Ele foi configurado usando um serviço como o VSFTPD, que gerencia as conexões e permissões para garantir que a transferência de arquivos seja segura.
+
+Por que é Útil: A principal utilidade do FTP é facilitar o gerenciamento do seu site WordPress. Ele permite que você, ou outros usuários autorizados, faça o upload de temas, plugins e mídias diretamente para a pasta do WordPress, sem precisar usar o terminal para comandos de cópia de arquivo.
+
+Checklist Final do Projeto
+Todos os testes obrigatórios foram aprovados: Você resolveu todos os problemas identificados pelo Test.sh, e o resultado final mostrou que sua VM atende a todos os requisitos do projeto.
+
+Todas as explicações foram satisfatórias: As explicações acima cobrem o funcionamento de cada serviço e sua importância para a conclusão do projeto.
+
+O projeto funciona conforme especificado: A sua VM agora tem todas as funcionalidades requeridas e os bônus estão implementados e operacionais.
+
+Bônus implementados corretamente: A configuração de partições, o WordPress (com Lighttpd e PHP-FPM) e o servidor FTP estão todos instalados e funcionando corretamente.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+comandos ftp
+
+Boa pergunta! Aqui estão os comandos FTP básicos:
+Comandos de navegação:
+bashftp> pwd          # Ver diretório atual (remoto)
+ftp> ls           # Listar arquivos do servidor
+ftp> ls -la       # Listagem detalhada
+ftp> cd pasta     # Mudar diretório no servidor
+ftp> lcd pasta    # Mudar diretório local
+Comandos de transferência:
+bashftp> get arquivo.txt         # Baixar arquivo do servidor
+ftp> put arquivo.txt         # Enviar arquivo para servidor
+ftp> mget *.txt             # Baixar múltiplos arquivos
+ftp> mput *.txt             # Enviar múltiplos arquivos
+Comandos de gerenciamento:
+bashftp> mkdir nova_pasta       # Criar pasta no servidor
+ftp> rmdir pasta           # Remover pasta vazia
+ftp> delete arquivo.txt    # Deletar arquivo
+ftp> rename velho novo     # Renomear arquivo
+Comandos do sistema:
+bashftp> binary               # Modo binário (para imagens, executáveis)
+ftp> ascii                # Modo texto (para arquivos de texto)
+ftp> passive              # Alternar modo passivo
+ftp> status               # Ver status da conexão
+ftp> help                 # Ver todos os comandos
+ftp> quit                 # Sair
+Teste prático:
+bashftp> ls                   # Ver o que tem na sua pasta FTP
+ftp> !ls                  # Ver arquivos locais (o ! executa comandos locais)
+ftp> put /etc/hostname    # Enviar arquivo para o servidor
+ftp> ls                   # Confirmar que foi enviado
+ftp> get hostname         # Baixar de volta	
+
