@@ -34,8 +34,9 @@ CONVERSION_SRC	= ft_ato_bin.c \
 		ft_atof.c \
 		ft_atohex.c \
 		ft_atohex_ptr.c \
-		ft_atoi.c \
 		ft_atoi_base.c \
+		ft_atoi.c \
+		ft_atol.c \
 		ft_ato_octa.c \
 		ft_base_is_valid.c \
 		ft_bin_toa.c \
@@ -54,6 +55,16 @@ CTYPE_SRC	= ft_isalnum.c \
 		ft_isspace.c \
 		ft_tolower.c \
 		ft_toupper.c
+
+DLIST_SRC	= ft_dlstnew.c \
+		ft_dlstadd_front.c \
+		ft_dlstadd_back.c \
+		ft_dlstlast.c \
+		ft_dlstsize.c \
+		ft_dlstdelone.c \
+		ft_dlstclear.c \
+		ft_dlstiter.c \
+		ft_dlstmap.c
 
 GNL_SRC		= get_next_line.c \
 		get_next_line_utils.c
@@ -119,8 +130,9 @@ UTILS_SRC	= ft_count_digits.c \
 
 # Full source paths
 ALLOC_SRCS		= $(addprefix $(SRC_DIR)/alloc/, $(ALLOC_SRC))
-CONVERSION_SRCS	= $(addprefix $(SRC_DIR)/conversion/, $(CONVERSION_SRC))
+CONVERSION_SRCS		= $(addprefix $(SRC_DIR)/conversion/, $(CONVERSION_SRC))
 CTYPE_SRCS		= $(addprefix $(SRC_DIR)/ctype/, $(CTYPE_SRC))
+DLIST_SRCS		= $(addprefix $(SRC_DIR)/dlist/, $(DLIST_SRC))
 GNL_SRCS		= $(addprefix $(SRC_DIR)/gnl/, $(GNL_SRC))
 LIST_SRCS		= $(addprefix $(SRC_DIR)/list/, $(LIST_SRC))
 MEMORY_SRCS		= $(addprefix $(SRC_DIR)/memory/, $(MEMORY_SRC))
@@ -130,16 +142,18 @@ STRING_SRCS		= $(addprefix $(SRC_DIR)/string/, $(STRING_SRC))
 UTILS_SRCS		= $(addprefix $(SRC_DIR)/utils/, $(UTILS_SRC))
 
 # All sources (without printf - for nopf target)
-SRCS_BASE = $(ALLOC_SRCS) $(CONVERSION_SRCS) $(CTYPE_SRCS) $(GNL_SRCS) \
-            $(LIST_SRCS) $(MEMORY_SRCS) $(OUTPUT_SRCS) $(STRING_SRCS) $(UTILS_SRCS)
+SRCS_BASE = $(ALLOC_SRCS) $(CONVERSION_SRCS) $(CTYPE_SRCS) $(DLIST_SRCS) \
+	$(GNL_SRCS) $(LIST_SRCS) $(MEMORY_SRCS) $(OUTPUT_SRCS) $(STRING_SRCS) \
+	$(UTILS_SRCS)
 
 # All sources (with printf - default)
 SRCS = $(SRCS_BASE) $(PRINTF_SRCS)
 
 # Object files
 ALLOC_OBJS		= $(addprefix $(OBJ_DIR)/alloc/, $(ALLOC_SRC:.c=.o))
-CONVERSION_OBJS	= $(addprefix $(OBJ_DIR)/conversion/, $(CONVERSION_SRC:.c=.o))
+CONVERSION_OBJS		= $(addprefix $(OBJ_DIR)/conversion/, $(CONVERSION_SRC:.c=.o))
 CTYPE_OBJS		= $(addprefix $(OBJ_DIR)/ctype/, $(CTYPE_SRC:.c=.o))
+DLIST_OBJS		= $(addprefix $(OBJ_DIR)/dlist/, $(DLIST_SRC:.c=.o))
 GNL_OBJS		= $(addprefix $(OBJ_DIR)/gnl/, $(GNL_SRC:.c=.o))
 LIST_OBJS		= $(addprefix $(OBJ_DIR)/list/, $(LIST_SRC:.c=.o))
 MEMORY_OBJS		= $(addprefix $(OBJ_DIR)/memory/, $(MEMORY_SRC:.c=.o))
@@ -149,8 +163,9 @@ STRING_OBJS		= $(addprefix $(OBJ_DIR)/string/, $(STRING_SRC:.c=.o))
 UTILS_OBJS		= $(addprefix $(OBJ_DIR)/utils/, $(UTILS_SRC:.c=.o))
 
 # All objects (without printf)
-OBJS_BASE = $(ALLOC_OBJS) $(CONVERSION_OBJS) $(CTYPE_OBJS) $(GNL_OBJS) \
-            $(LIST_OBJS) $(MEMORY_OBJS) $(OUTPUT_OBJS) $(STRING_OBJS) $(UTILS_OBJS)
+OBJS_BASE = $(ALLOC_OBJS) $(CONVERSION_OBJS) $(CTYPE_OBJS) $(DLIST_OBJS) \
+	$(GNL_OBJS) $(LIST_OBJS) $(MEMORY_OBJS) $(OUTPUT_OBJS) $(STRING_OBJS) \
+	$(UTILS_OBJS)
 
 # All objects (with printf)
 OBJS = $(OBJS_BASE) $(PRINTF_OBJS)
@@ -158,9 +173,9 @@ OBJS = $(OBJS_BASE) $(PRINTF_OBJS)
 # Colors for output
 GREEN	= \033[0;32m
 YELLOW	= \033[0;33m
-RED		= \033[0;31m
+RED	= \033[0;31m
 BLUE	= \033[0;34m
-NC		= \033[0m
+NC	= \033[0m
 
 # Default target (with printf)
 all: $(NAME)
@@ -183,6 +198,7 @@ $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)/alloc
 	@mkdir -p $(OBJ_DIR)/conversion
 	@mkdir -p $(OBJ_DIR)/ctype
+	@mkdir -p $(OBJ_DIR)/dlist
 	@mkdir -p $(OBJ_DIR)/gnl
 	@mkdir -p $(OBJ_DIR)/list
 	@mkdir -p $(OBJ_DIR)/memory
@@ -201,6 +217,10 @@ $(OBJ_DIR)/conversion/%.o: $(SRC_DIR)/conversion/%.c | $(OBJ_DIR)
 	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 $(OBJ_DIR)/ctype/%.o: $(SRC_DIR)/ctype/%.c | $(OBJ_DIR)
+	@echo "$(YELLOW)Compiling $<...$(NC)"
+	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+$(OBJ_DIR)/dlist/%.o: $(SRC_DIR)/dlist/%.c | $(OBJ_DIR)
 	@echo "$(YELLOW)Compiling $<...$(NC)"
 	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 

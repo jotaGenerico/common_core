@@ -17,7 +17,7 @@
 #  define GNL_SIZE 42
 # endif
 
-#include "../src/printf/ft_printf.h"
+# include "../src/printf/ft_printf.h"
 # include <unistd.h>
 # include <stdlib.h>
 
@@ -28,6 +28,7 @@ unsigned int	ft_ato_octa(const char *str);
 unsigned long	ft_atohex_ptr(const char *hex_str);
 unsigned int	ft_atohex(const char *str);
 double			ft_atof(const char *str);
+long			ft_atol(const char *nptr);
 int				ft_base_is_valid(const char *base);
 char			*ft_bin_toa(unsigned int nbr);
 void			ft_bzero(void *s, size_t n);
@@ -73,6 +74,7 @@ int				ft_toupper(int c);
 int				ft_tolower(int c);
 char			*ft_utoa_base(unsigned int nbr, const char *base);
 
+//list
 typedef struct s_list
 {
 	void			*content;
@@ -89,6 +91,25 @@ t_list			*ft_lstmap(t_list *lst, void *(*f)(void *),
 					void (*del)(void *));
 t_list			*ft_lstnew(void *content);
 int				ft_lstsize(t_list *lst);
+
+// dlist
+typedef struct s_dlist
+{
+	void			*content;
+	struct s_dlist	*next;
+	struct s_dlist	*prev;
+}	t_dlist;
+
+t_dlist			*ft_dlstnew(void *content);
+void			ft_dlstadd_front(t_dlist **lst, t_dlist *new);
+void			ft_dlstadd_back(t_dlist **lst, t_dlist *new);
+t_dlist			*ft_dlstlast(t_dlist *lst);
+int				ft_dlstsize(t_dlist *lst);
+void			ft_dlstdelone(t_dlist *lst, void (*del)(void *));
+void			ft_dlstclear(t_dlist **lst, void (*del)(void *));
+void			ft_dlstiter(t_dlist *lst, void (*f)(void *));
+t_dlist			*ft_dlstmap(t_dlist *lst, void *(*f)(void *),
+					void (*del)(void *));
 
 // gnl
 char			*get_next_line(int fd);
