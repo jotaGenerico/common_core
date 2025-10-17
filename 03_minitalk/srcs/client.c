@@ -6,7 +6,7 @@
 /*   By: jose-cad <jose-cad@42sp.org.br>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/03 23:50:02 by jose-cad          #+#    #+#             */
-/*   Updated: 2025/10/15 13:06:49 by jose-cad         ###   ########.fr       */
+/*   Updated: 2025/10/09 13:00:24 by jose-cad         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,5 +72,6 @@ static void	send_char(pid_t server_pid, unsigned char c)
 		else
 			kill(server_pid, SIGUSR1);
 		pause();
+		usleep(50);
 	}
 }
